@@ -32,13 +32,21 @@ func main() {
 	)
 	exit1(err, "Failed to declare an exchange")
 
+	// queue args
+	args := map[string]interface{}{
+		"x-message-ttl":             int32(43200000),  // 12 hours
+		"x-expires":                 int32(345600000), // 4 days
+		"x-dead-letter-exchange":    "amq.direct",
+		"x-dead-letter-routing-key": "roten-carrots",
+	}
+
 	q, err := ch.QueueDeclare(
-		"",    // name
-		false, // durable
-		false, // delete when usused
-		true,  // exclusive
-		false, // no-wait
-		nil,   // arguments
+		"carrots", // name
+		false,     // durable
+		false,     // delete when usused
+		false,     // exclusive
+		false,     // no-wait
+		args,      // arguments
 	)
 	exit1(err, "Failed to declare a queue")
 
