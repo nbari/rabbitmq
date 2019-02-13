@@ -1,4 +1,4 @@
-# random queue name: amq.gen-PhvTLHYLYYV0LgSWX86mcQ
+# random queue name
 
 In the amqp client, when we supply queue name as an empty string, we create a
 non-durable queue with a generated name:
