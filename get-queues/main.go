@@ -17,7 +17,7 @@ func main() {
 	manager := "http://127.0.0.1:15672/api/queues/"
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", manager, nil)
-	req.SetBasicAuth("brokeruser", "brokeruser-nbari")
+	req.SetBasicAuth("bunny", "test")
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatal(err)
