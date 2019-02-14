@@ -33,7 +33,9 @@ Clone the project into that directory:
 
 Just `cd` into a directory where is a `main.go` and run:
 
+    $ go get  (in case need to get the dependecies)
     $ go run main.go
+
 
 For example to test creating random queues:
 
