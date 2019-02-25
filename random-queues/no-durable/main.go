@@ -51,13 +51,33 @@ func main() {
 	defer ch.Close()
 
 	args := map[string]interface{}{
-		"x-message-ttl":             int32(3000),
-		"x-expires":                 int32(8000),
+		//  ----------------------------------------------------------------------------
+		// This creates a race condition
+		// to test it increment the value of concurrent to something bigger, for example
+		//
+		// concurrent := 500
+		//
+		// it will return somethig like:
+		//
+		// Failed to register a consumer: Exception (404) Reason: "NOT_FOUND - no queue 'carrot-2019-02-25-eb8f43ec-0f23-4b82-b271-041518363b3a' in vhost 'hole'"
+		// Failed to register a consumer: Exception (504) Reason: "channel/connection is not open"
+		//
+		// The reason for this is that the response speed is proportional to the current
+		// load, therefore the more concurrent clients, the more it will take time to
+		// accept the clients for consuming and when the client finally is ready for
+		// consuming the queue it could be expired.
+		//
+		// A solution for this is to either not expire the queue or better use exclusive queues.
+		"x-message-ttl": int32(3000), //
+		"x-expires":     int32(8000), // <-- better remove this, increment it or use an exclusive queue
+		//  ----------------------------------------------------------------------------
 		"x-dead-letter-exchange":    "amq.direct",
 		"x-dead-letter-routing-key": "carrot",
 	}
 
+	// concurrent := 500
 	concurrent := 50
+
 	wg := sync.WaitGroup{}
 	semaphore := make(chan struct{}, concurrent)
 
@@ -80,6 +100,9 @@ func main() {
 				args,  // arguments
 			)
 			exit1(err, "Failed to declare a queue")
+
+			// TODO instrument time elapsed here
+			// queue is Declared but not available immediately
 
 			_, err = ch.Consume(
 				q.Name, // queue
