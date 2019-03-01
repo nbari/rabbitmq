@@ -69,7 +69,7 @@ func main() {
 		//
 		// A solution for this is to either not expire the queue or better use exclusive queues.
 		"x-message-ttl": int32(3000), //
-		//		"x-expires":     int32(8000), // <-- better remove this, increment it or use an exclusive queue
+		"x-expires":     int32(8000), // <-- better remove this, increment it or use an exclusive queue
 		//  ----------------------------------------------------------------------------
 		"x-dead-letter-exchange":    "amq.direct",
 		"x-dead-letter-routing-key": "carrot",
