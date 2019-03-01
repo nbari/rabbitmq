@@ -69,14 +69,14 @@ func main() {
 		//
 		// A solution for this is to either not expire the queue or better use exclusive queues.
 		"x-message-ttl": int32(3000), //
-		"x-expires":     int32(8000), // <-- better remove this, increment it or use an exclusive queue
+		//		"x-expires":     int32(8000), // <-- better remove this, increment it or use an exclusive queue
 		//  ----------------------------------------------------------------------------
 		"x-dead-letter-exchange":    "amq.direct",
 		"x-dead-letter-routing-key": "carrot",
 	}
 
 	// concurrent := 500
-	concurrent := 50
+	concurrent := 300
 
 	wg := sync.WaitGroup{}
 	semaphore := make(chan struct{}, concurrent)
@@ -84,7 +84,8 @@ func main() {
 	for i := 0; i < 1000; i++ {
 		semaphore <- struct{}{}
 		wg.Add(1)
-		go func() {
+		go func(j int) {
+			start := time.Now()
 			queueName := fmt.Sprintf("carrot-%s-%s", time.Now().Format("2006-01-02"), uuid.Must(uuid.NewV4()))
 			fmt.Printf("Creating queue: %s\n", queueName)
 			defer func() {
@@ -101,8 +102,7 @@ func main() {
 			)
 			exit1(err, "Failed to declare a queue")
 
-			// TODO instrument time elapsed here
-			// queue is Declared but not available immediately
+			fmt.Printf("elapsed: %v msg: %d\n", time.Since(start), j)
 
 			_, err = ch.Consume(
 				q.Name, // queue
@@ -114,7 +114,7 @@ func main() {
 				nil,    // args
 			)
 			exit1(err, "Failed to register a consumer")
-		}()
+		}(i)
 	}
 	wg.Wait()
 }
